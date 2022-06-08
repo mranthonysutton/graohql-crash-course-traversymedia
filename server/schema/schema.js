@@ -6,7 +6,9 @@ const {
   GraphQLString,
   GraphQLSchema,
   GraphQLList,
+  GraphQLNonNull,
 } = require('graphql');
+const { type } = require('express/lib/response');
 
 // Client type
 const ClientType = new GraphQLObjectType({
@@ -68,6 +70,48 @@ const RootQuery = new GraphQLObjectType({
   },
 });
 
+// Mutations
+const mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addClient: {
+      type: ClientType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        phone: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(_, args) {
+        const client = new Client({
+          name: args.name,
+          email: args.email,
+          phone: args.phone,
+        });
+
+        return client.save();
+      },
+    },
+    deleteClient: {
+      type: ClientType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve(_, args) {
+        return Client.findByIdAndRemove(args.id);
+      },
+    },
+    //addProject: {
+    //type: ProjectType,
+    //args: {
+    //name: { type: GraphQLNonNull(GraphQLString) },
+    //description: { type: GraphQLNonNull(GraphQLString) },
+    //status: { type: GraphQLNonNull(GraphQLString) },
+    //},
+    //},
+  },
+});
+
 module.exports = new GraphQLSchema({
   query: RootQuery,
+  mutation,
 });
