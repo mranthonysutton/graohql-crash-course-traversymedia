@@ -158,7 +158,7 @@ const mutation = new GraphQLObjectType({
         },
       },
       resolve(_, args) {
-        return Project.findOneAndUpdate(
+        return Project.findByIdAndUpdate(
           args.id,
           {
             $set: {
